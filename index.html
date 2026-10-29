@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Natural Photo Enhancer</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ padding:20px;
+ font-family:Arial,sans-serif;
+ background:#101820;
+ color:white;
+}
+
+.container{
+ max-width:500px;
+ margin:auto;
+ background:#1c2935;
+ padding:22px;
+ border-radius:20px;
+}
+
+h1{
+ text-align:center;
+ color:#55d6c2;
+}
+
+.subtitle{
+ text-align:center;
+ color:#bdcbd5;
+ line-height:1.6;
+}
+
+.upload{
+ display:block;
+ padding:18px;
+ margin:20px 0;
+ text-align:center;
+ border:2px dashed #55d6c2;
+ border-radius:12px;
+ cursor:pointer;
+ background:#293c4c;
+}
+
+.upload input{display:none}
+
+.preview{
+ width:100%;
+ display:block;
+ border-radius:12px;
+ margin:15px 0;
+}
+
+.control{
+ margin:20px 0;
+}
+
+.control label{
+ display:flex;
+ justify-content:space-between;
+ margin-bottom:10px;
+}
+
+input[type=range]{
+ width:100%;
+ accent-color:#55d6c2;
+}
+
+button{
+ width:100%;
+ padding:14px;
+ margin-top:12px;
+ border:0;
+ border-radius:10px;
+ background:#55d6c2;
+ color:#10252b;
+ font-size:16px;
+ font-weight:bold;
+ cursor:pointer;
+}
+
+.secondary{
+ background:#344a5b;
+ color:white;
+}
+
+button:disabled{
+ opacity:.4;
+}
+
+.note{
+ font-size:12px;
+ color:#aabac5;
+ text-align:center;
+ margin-top:18px;
+ line-height:1.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>✨ Natural Photo Enhancer</h1>
+
+<p class="subtitle">
+Make your photos clearer, brighter and sharper.
+Keep your natural appearance unchanged.
+</p>
+
+<label class="upload">
+📸 Choose Your Photo
+<input type="file" id="photo" accept="image/*">
+</label>
+
+<img id="preview" class="preview" hidden>
+
+<div id="controls" hidden>
+
+<div class="control">
+<label>
+Brightness <span id="bv">100%</span>
+</label>
+<input type="range" id="brightness"
+min="50" max="150" value="100">
+</div>
+
+<div class="control">
+<label>
+Contrast <span id="cv">100%</span>
+</label>
+<input type="range" id="contrast"
+min="50" max="150" value="100">
+</div>
+
+<div class="control">
+<label>
+Sharpness <span id="sv">0</span>
+</label>
+<input type="range" id="sharpness"
+min="0" max="5" value="0">
+</div>
+
+<button onclick="resetPhoto()" class="secondary">
+Reset Adjustments
+</button>
+
+<button onclick="downloadPhoto()">
+⬇ Download Enhanced Photo
+</button>
+
+</div>
+
+<p class="note">
+Your original photo remains unchanged.
+Enhancement is performed in your browser.
+AI mirror cleaning will be added separately.
+</p>
+
+</div>
+
+<script>
+const photo = document.getElementById("photo");
+const preview = document.getElementById("preview");
+const controls = document.getElementById("controls");
+
+let originalImage = new Image();
+let originalFileName = "photo";
+
+photo.addEventListener("change", function(){
+
+ const file = this.files[0];
+ if(!file) return;
+
+ originalFileName = file.name.replace(/\.[^.]+$/, "");
+
+ const reader = new FileReader();
+
+ reader.onload = function(e){
+  originalImage.onload = function(){
+   preview.src = e.target.result;
+   preview.hidden = false;
+   controls.hidden = false;
+   resetPhoto();
+  };
+  originalImage.src = e.target.result;
+ };
+
+ reader.readAsDataURL(file);
+});
+
+const brightness = document.getElementById("brightness");
+const contrast = document.getElementById("contrast");
+const sharpness = document.getElementById("sharpness");
+
+function updatePhoto(){
+
+ if(!originalImage.src) return;
+
+ preview.style.filter =
+ `brightness(${brightness.value}%)
+  contrast(${contrast.value}%)
+  `;
+
+ document.getElementById("bv").textContent =
+ brightness.value + "%";
+
+ document.getElementById("cv").textContent =
+ contrast.value + "%";
+
+ document.getElementById("sv").textContent =
+ sharpness.value;
+}
+
+[brightness,contrast,sharpness].forEach(input=>{
+ input.addEventListener("input",updatePhoto);
+});
+
+function resetPhoto(){
+ brightness.value=100;
+ contrast.value=100;
+ sharpness.value=0;
+ updatePhoto();
+}
+
+function downloadPhoto(){
+
+ const canvas=document.createElement("canvas");
+ const ctx=canvas.getContext("2d");
+
+ canvas.width=originalImage.naturalWidth;
+ canvas.height=originalImage.naturalHeight;
+
+ ctx.filter=
+ `brightness(${brightness.value}%)
+  contrast(${contrast.value}%)`;
+
+ ctx.drawImage(originalImage,0,0);
+
+ const link=document.createElement("a");
+ link.download=originalFileName+"-enhanced.jpg";
+ link.href=canvas.toDataURL("image/jpeg",0.95);
+ link.click();
+}
+</script>
+
+</body>
+</html>
