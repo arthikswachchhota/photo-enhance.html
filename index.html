@@ -7,125 +7,147 @@
 <title>Natural Photo Enhancer</title>
 
 <style>
-*{box-sizing:border-box}
-
-body{
- margin:0;
- padding:20px;
- font-family:Arial,sans-serif;
- background:#101820;
- color:white;
+* {
+  box-sizing: border-box;
 }
 
-.container{
- max-width:500px;
- margin:auto;
- background:#1c2935;
- padding:22px;
- border-radius:20px;
+body {
+  margin: 0;
+  padding: 22px 14px;
+  background: #101827;
+  color: #fff;
+  font-family: Arial, sans-serif;
 }
 
-h1{
- text-align:center;
- color:#55d6c2;
+.container {
+  max-width: 520px;
+  margin: auto;
 }
 
-.subtitle{
- text-align:center;
- color:#bdcbd5;
- line-height:1.6;
+h1 {
+  text-align: center;
+  color: #55d6d0;
 }
 
-.upload{
- display:block;
- padding:18px;
- margin:20px 0;
- text-align:center;
- border:2px dashed #55d6c2;
- border-radius:12px;
- cursor:pointer;
- background:#293c4c;
+.subtitle {
+  text-align: center;
+  color: #b8c4d6;
+  line-height: 1.6;
 }
 
-.upload input{display:none}
-
-.preview{
- width:100%;
- display:block;
- border-radius:12px;
- margin:15px 0;
+.panel {
+  background: #1d293b;
+  padding: 18px;
+  border-radius: 16px;
+  margin-top: 18px;
 }
 
-.control{
- margin:20px 0;
+input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  background: #26364b;
+  border-radius: 10px;
+  color: white;
 }
 
-.control label{
- display:flex;
- justify-content:space-between;
- margin-bottom:10px;
+.preview {
+  width: 100%;
+  margin-top: 16px;
+  border-radius: 12px;
+  display: block;
+  background: #0b1220;
 }
 
-input[type=range]{
- width:100%;
- accent-color:#55d6c2;
+.control {
+  margin: 20px 0;
 }
 
-button{
- width:100%;
- padding:14px;
- margin-top:12px;
- border:0;
- border-radius:10px;
- background:#55d6c2;
- color:#10252b;
- font-size:16px;
- font-weight:bold;
- cursor:pointer;
+.control label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
-.secondary{
- background:#344a5b;
- color:white;
+input[type="range"] {
+  width: 100%;
+  accent-color: #55d6d0;
 }
 
-button:disabled{
- opacity:.4;
+button {
+  width: 100%;
+  border: 0;
+  padding: 14px;
+  border-radius: 10px;
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-.note{
- font-size:12px;
- color:#aabac5;
- text-align:center;
- margin-top:18px;
- line-height:1.6;
+.download {
+  background: #55d6d0;
+  color: #10202b;
+}
+
+.reset {
+  background: #35445a;
+  color: white;
+}
+
+.original {
+  background: #43516a;
+  color: white;
+}
+
+.note {
+  color: #aebdd0;
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.6;
+  margin-top: 18px;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  margin-top: 16px;
+  background: #0b1220;
+}
+
+.hidden {
+  display: none;
 }
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-<h1>✨ Natural Photo Enhancer</h1>
+<h1>Natural Photo Enhancer</h1>
 
 <p class="subtitle">
-Make your photos clearer, brighter and sharper.
-Keep your natural appearance unchanged.
+Enhance your photos naturally while keeping your original features unchanged.
 </p>
 
-<label class="upload">
-📸 Choose Your Photo
-<input type="file" id="photo" accept="image/*">
-</label>
+<div class="panel">
 
-<img id="preview" class="preview" hidden>
+<input type="file" id="upload" accept="image/*">
 
-<div id="controls" hidden>
+<canvas id="canvas" class="hidden"></canvas>
+
+<div id="message" class="note">
+Upload a photo to get started.
+</div>
+
+<div id="controls" class="hidden">
 
 <div class="control">
 <label>
-Brightness <span id="bv">100%</span>
+Brightness
+<span id="brightnessValue">100%</span>
 </label>
 <input type="range" id="brightness"
 min="50" max="150" value="100">
@@ -133,7 +155,8 @@ min="50" max="150" value="100">
 
 <div class="control">
 <label>
-Contrast <span id="cv">100%</span>
+Contrast
+<span id="contrastValue">100%</span>
 </label>
 <input type="range" id="contrast"
 min="50" max="150" value="100">
@@ -141,113 +164,263 @@ min="50" max="150" value="100">
 
 <div class="control">
 <label>
-Sharpness <span id="sv">0</span>
+Sharpness
+<span id="sharpnessValue">0</span>
 </label>
 <input type="range" id="sharpness"
-min="0" max="5" value="0">
+min="0" max="100" value="0">
 </div>
 
-<button onclick="resetPhoto()" class="secondary">
+<div class="control">
+<label>
+Clarity
+<span id="clarityValue">0</span>
+</label>
+<input type="range" id="clarity"
+min="0" max="100" value="0">
+</div>
+
+<button class="original" id="originalBtn">
+Show Original Photo
+</button>
+
+<button class="reset" id="resetBtn">
 Reset Adjustments
 </button>
 
-<button onclick="downloadPhoto()">
-⬇ Download Enhanced Photo
+<button class="download" id="downloadBtn">
+Download Enhanced Photo
 </button>
 
+</div>
 </div>
 
 <p class="note">
 Your original photo remains unchanged.
-Enhancement is performed in your browser.
-AI mirror cleaning will be added separately.
+Enhancements are processed in your browser.
 </p>
 
 </div>
 
 <script>
-const photo = document.getElementById("photo");
-const preview = document.getElementById("preview");
-const controls = document.getElementById("controls");
-
-let originalImage = new Image();
-let originalFileName = "photo";
-
-photo.addEventListener("change", function(){
-
- const file = this.files[0];
- if(!file) return;
-
- originalFileName = file.name.replace(/\.[^.]+$/, "");
-
- const reader = new FileReader();
-
- reader.onload = function(e){
-  originalImage.onload = function(){
-   preview.src = e.target.result;
-   preview.hidden = false;
-   controls.hidden = false;
-   resetPhoto();
-  };
-  originalImage.src = e.target.result;
- };
-
- reader.readAsDataURL(file);
+const upload = document.getElementById("upload");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d", {
+  willReadFrequently: true
 });
+
+const controls = document.getElementById("controls");
+const message = document.getElementById("message");
 
 const brightness = document.getElementById("brightness");
 const contrast = document.getElementById("contrast");
 const sharpness = document.getElementById("sharpness");
+const clarity = document.getElementById("clarity");
 
-function updatePhoto(){
+let originalImage = null;
+let originalData = null;
+let originalMode = false;
 
- if(!originalImage.src) return;
+function updateLabels() {
+  document.getElementById("brightnessValue").textContent =
+    brightness.value + "%";
 
- preview.style.filter =
- `brightness(${brightness.value}%)
-  contrast(${contrast.value}%)
-  `;
+  document.getElementById("contrastValue").textContent =
+    contrast.value + "%";
 
- document.getElementById("bv").textContent =
- brightness.value + "%";
+  document.getElementById("sharpnessValue").textContent =
+    sharpness.value;
 
- document.getElementById("cv").textContent =
- contrast.value + "%";
-
- document.getElementById("sv").textContent =
- sharpness.value;
+  document.getElementById("clarityValue").textContent =
+    clarity.value;
 }
 
-[brightness,contrast,sharpness].forEach(input=>{
- input.addEventListener("input",updatePhoto);
+upload.addEventListener("change", function(event) {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    message.textContent = "Please select an image.";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const img = new Image();
+
+    img.onload = function() {
+      originalImage = img;
+
+      const scale = Math.min(
+        1,
+        2200 / Math.max(img.width, img.height)
+      );
+
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      originalData = ctx.getImageData(
+        0, 0, canvas.width, canvas.height
+      );
+
+      controls.classList.remove("hidden");
+      canvas.classList.remove("hidden");
+      message.textContent = "Photo uploaded successfully.";
+
+      resetAdjustments();
+    };
+
+    img.onerror = function() {
+      message.textContent = "Could not load this photo.";
+    };
+
+    img.src = e.target.result;
+  };
+
+  reader.readAsDataURL(file);
 });
 
-function resetPhoto(){
- brightness.value=100;
- contrast.value=100;
- sharpness.value=0;
- updatePhoto();
+function renderPhoto() {
+  if (!originalData || originalMode) return;
+
+  const width = canvas.width;
+  const height = canvas.height;
+
+  const imageData = new ImageData(
+    new Uint8ClampedArray(originalData.data),
+    width,
+    height
+  );
+
+  const data = imageData.data;
+
+  const bright = Number(brightness.value) / 100;
+  const contrastValue = Number(contrast.value) / 100;
+
+  const factor =
+    (259 * (contrastValue * 255 + 255)) /
+    (255 * (259 - contrastValue * 255));
+
+  for (let i = 0; i < data.length; i += 4) {
+    for (let c = 0; c < 3; c++) {
+      const value = data[i + c] * bright;
+      data[i + c] = factor * (value - 128) + 128;
+    }
+  }
+
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = width;
+  tempCanvas.height = height;
+
+  const tempCtx = tempCanvas.getContext("2d", {
+    willReadFrequently: true
+  });
+
+  tempCtx.putImageData(imageData, 0, 0);
+
+  const amount =
+    Number(sharpness.value) / 100 * 1.5 +
+    Number(clarity.value) / 100 * 0.8;
+
+  if (amount > 0) {
+    const blurCanvas = document.createElement("canvas");
+    blurCanvas.width = width;
+    blurCanvas.height = height;
+
+    const blurCtx = blurCanvas.getContext("2d", {
+      willReadFrequently: true
+    });
+
+    blurCtx.filter = "blur(1px)";
+    blurCtx.drawImage(tempCanvas, 0, 0);
+    blurCtx.filter = "none";
+
+    const base = tempCtx.getImageData(0, 0, width, height);
+    const blurred = blurCtx.getImageData(0, 0, width, height);
+
+    const output = base.data;
+    const soft = blurred.data;
+
+    for (let i = 0; i < output.length; i += 4) {
+      for (let c = 0; c < 3; c++) {
+        output[i + c] =
+          output[i + c] +
+          (output[i + c] - soft[i + c]) * amount;
+      }
+    }
+
+    tempCtx.putImageData(base, 0, 0);
+  }
+
+  ctx.putImageData(
+    tempCtx.getImageData(0, 0, width, height),
+    0, 0
+  );
 }
 
-function downloadPhoto(){
+function resetAdjustments() {
+  brightness.value = 100;
+  contrast.value = 100;
+  sharpness.value = 0;
+  clarity.value = 0;
 
- const canvas=document.createElement("canvas");
- const ctx=canvas.getContext("2d");
+  originalMode = false;
 
- canvas.width=originalImage.naturalWidth;
- canvas.height=originalImage.naturalHeight;
+  updateLabels();
+  renderPhoto();
 
- ctx.filter=
- `brightness(${brightness.value}%)
-  contrast(${contrast.value}%)`;
-
- ctx.drawImage(originalImage,0,0);
-
- const link=document.createElement("a");
- link.download=originalFileName+"-enhanced.jpg";
- link.href=canvas.toDataURL("image/jpeg",0.95);
- link.click();
+  document.getElementById("originalBtn").textContent =
+    "Show Original Photo";
 }
+
+[brightness, contrast, sharpness, clarity].forEach(control => {
+  control.addEventListener("input", function() {
+    originalMode = false;
+    updateLabels();
+    renderPhoto();
+
+    document.getElementById("originalBtn").textContent =
+      "Show Original Photo";
+  });
+});
+
+document.getElementById("originalBtn").addEventListener("click", function() {
+  if (!originalData) return;
+
+  originalMode = !originalMode;
+
+  if (originalMode) {
+    ctx.putImageData(originalData, 0, 0);
+    this.textContent = "Show Enhanced Photo";
+  } else {
+    renderPhoto();
+    this.textContent = "Show Original Photo";
+  }
+});
+
+document.getElementById("resetBtn").addEventListener(
+  "click", resetAdjustments
+);
+
+document.getElementById("downloadBtn").addEventListener("click", function() {
+  if (!originalData) return;
+
+  if (originalMode) {
+    originalMode = false;
+    renderPhoto();
+    document.getElementById("originalBtn").textContent =
+      "Show Original Photo";
+  }
+
+  const link = document.createElement("a");
+  link.download = "enhanced-photo.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+});
 </script>
 
 </body>
